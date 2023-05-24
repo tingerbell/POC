@@ -39,6 +39,7 @@ jobs:
           # Compare the current tag with existing tags
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
+            
             echo "Blocking PR merge..."
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
@@ -75,7 +76,6 @@ jobs:
 
               process.exit(1);
             EOF
-          
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
