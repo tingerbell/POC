@@ -35,6 +35,32 @@ jobs:
           # Compare the current tag with existing tags
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
+            
+            echo "Blocking PR merge..."
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            CHECK_NAME="Merge Conditions Check"
+            CHECK_TITLE="Merge Conditions Check Failed"
+            CHECK_SUMMARY="The pull request does not meet the required merge conditions."
+            CHECK_CONCLUSION="failure"
+            CHECK_TEXT="Please make sure the PR has the 'allow_merge' label and is targeting the 'main' branch."
+
+            # Create a failure check status using the GitHub Checks API
+            curl \
+              -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -d "{
+                    \"name\": \"$CHECK_NAME\",
+                    \"head_sha\": \"$GITHUB_SHA\",
+                    \"status\": \"completed\",
+                    \"conclusion\": \"$CHECK_CONCLUSION\",
+                    \"output\": {
+                      \"title\": \"$CHECK_TITLE\",
+                      \"summary\": \"$CHECK_SUMMARY\",
+                      \"text\": \"$CHECK_TEXT\"
+                    }
+                  }" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/check-runs"
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
