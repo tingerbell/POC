@@ -69,7 +69,7 @@ jobs:
                 repo: "${REPO_NAME}",
                 sha: "${GITHUB_SHA}",
                 state: 'failure',
-                target_url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}`,
+                target_url: \`https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}\`,
                 description: 'Merge blocked due to failing conditions',
                 context: 'Merge Conditions'
               });
