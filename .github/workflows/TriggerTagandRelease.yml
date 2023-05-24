@@ -28,18 +28,18 @@ jobs:
       - name: Get Tags
         id: get_tags
         run: |
-          git fetch --prune --tags
-          tags=$(git tag -l)
-          echo "::set-output name=tags::$tags"
+          tags=$(git ls-remote --tags origin | awk '{print $2}' | awk -F/ '{print $NF}')
+          echo "TAGS=$tags" >> $GITHUB_ENV
           
       - name: Run build
         run: |
           echo "Running build task..."
           current_tag= "${{ steps.read_variables.outputs.stableVersion }}"
-          tags="${{ steps.get_tags.outputs.tags }}"
+          tags="$TAGS"
 
           if [[ $tags =~ (^|[[:space:]])$current_tag($|[[:space:]]) ]]; then
             echo "Tag $current_tag exists!"
+            exit 1
           else
             echo "Tag $current_tag does not exist!"
           fi
