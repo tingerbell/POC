@@ -6,13 +6,13 @@ on:
       - main
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     permissions: write-all
     outputs:
       version: ${{ steps.read_variables.outputs.stableVersion }}
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v2
       
@@ -26,15 +26,41 @@ jobs:
       - name: Get Tags
         run: git fetch --tags
           
-      - name: Run build
+      - name: Compare Tag and run build
         run: |
-          echo "Running build task..."
+          echo "Comapare tags..."
           CURRENT_TAG="${{ steps.read_variables.outputs.stableVersion }}"
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
+            exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
           fi
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: |
+      ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main" && github.event.pull_request.merged == true
+      
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.build.outputs.version }}
+          release_name: Release${{ needs.build.outputs.version }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+            - Third Change
+          draft: false
+          prerelease: false             
+        
