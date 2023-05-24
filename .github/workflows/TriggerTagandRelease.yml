@@ -28,6 +28,7 @@ jobs:
       - name: Get Tags
         id: get_tags
         run: |
+          git fetch --prune --tags
           tags=$(git ls-remote --tags origin | awk '{print $2}' | awk -F/ '{print $NF}')
           echo "TAGS=$tags" >> $GITHUB_ENV
           
