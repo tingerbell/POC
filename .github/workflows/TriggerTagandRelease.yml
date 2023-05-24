@@ -22,15 +22,18 @@ jobs:
         run: |
           stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
           echo "::set-output name=stableVersion::$stableVersion"
-          
-      - name: Fetch tags
-        run: git fetch --prune --tags
-
-      - name: Get tags
+      
+      - name: Get Tags
         id: get_tags
         run: |
+          git fetch --prune --tags
           tags=$(git tag -l)
           echo "::set-output name=tags::$tags"
+
+      - name: Show Tags
+        run: |
+          tags="${{ steps.get_tags.outputs.tags }}"
+          echo "Tags: $tags"
           
       - name: Run build
         run: |
