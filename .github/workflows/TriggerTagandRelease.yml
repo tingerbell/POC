@@ -46,31 +46,32 @@ jobs:
             REPO_OWNER=$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH")
             REPO_NAME=$(jq --raw-output .repository.name "$GITHUB_EVENT_PATH")
 
-            # Create a GitHub client using the octokit/rest.js library
-            const github = require('@actions/github');
-            const octokit = github.getOctokit(GITHUB_TOKEN);
+            # Install octokit/rest.js
+            npm install @octokit/rest
+
+            # Import octokit/rest.js and create a GitHub client
+            const { Octokit } = require('@octokit/rest');
+            const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
             // Create a comment on the PR to block the merge
-            const comment = {
+            octokit.rest.issues.createComment({
               owner: REPO_OWNER,
               repo: REPO_NAME,
               issue_number: PR_NUMBER,
               body: 'Merging this pull request is blocked due to failing merge conditions.'
-            };
-            octokit.rest.issues.createComment(comment);
+            });
 
             // Set the PR status to failed to block the merge
-            const status = {
+            octokit.rest.repos.createCommitStatus({
               owner: REPO_OWNER,
               repo: REPO_NAME,
-              sha: GITHUB_SHA,
+              sha: process.env.GITHUB_SHA,
               state: 'failure',
               target_url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}`,
               description: 'Merge blocked due to failing conditions',
               context: 'Merge Conditions'
-            };
-            octokit.rest.repos.createCommitStatus(status);
-           
+            });
+
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
