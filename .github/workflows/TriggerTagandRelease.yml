@@ -50,7 +50,7 @@ jobs:
             npm install @octokit/rest
 
             # Run the JavaScript file using Node.js
-            node block-pr-merge.js "${GITHUB_TOKEN}" "${REPO_OWNER}" "${REPO_NAME}" ${PR_NUMBER}
+            node .github/workflows/block-pr-merge.js "${GITHUB_TOKEN}" "${REPO_OWNER}" "${REPO_NAME}" ${PR_NUMBER}
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
