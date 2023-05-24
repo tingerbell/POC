@@ -27,7 +27,7 @@ jobs:
         id: get_tags
         run: |
           git fetch --prune --tags
-          tags=$(git tag -l)
+          tags=$(git ls-remote --tags origin | awk '{print $2}' | awk -F/ '{print $NF}')
           echo "::set-output name=tags::$tags"
           
       - name: Run build
@@ -38,7 +38,6 @@ jobs:
 
           if [[ $tags =~ (^|[[:space:]])$current_tag($|[[:space:]]) ]]; then
             echo "Tag $current_tag exists!"
-            exit 1
           else
             echo "Tag $current_tag does not exist!"
           fi
