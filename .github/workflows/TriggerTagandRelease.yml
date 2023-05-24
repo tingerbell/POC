@@ -46,6 +46,9 @@ jobs:
             PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
             REPO_OWNER=$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH")
             REPO_NAME=$(jq --raw-output .repository.name "$GITHUB_EVENT_PATH")
+            echo "PR_NUMBER: $PR_NUMBER"
+            echo "REPO_OWNER: $REPO_OWNER"
+            echo "REPO_NAME: $REPO_NAME"
 
             # Create a comment on the PR using GitHub REST API
             curl -X POST \
