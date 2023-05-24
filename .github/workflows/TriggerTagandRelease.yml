@@ -26,14 +26,8 @@ jobs:
       - name: Get Tags
         id: get_tags
         run: |
-          git fetch --prune --tags
-          tags=$(git tag -l)
+          tags=$(git ls-remote --tags origin | awk '{print $2}' | awk -F/ '{print $NF}')
           echo "::set-output name=tags::$tags"
-
-      - name: Show Tags
-        run: |
-          tags="${{ steps.get_tags.outputs.tags }}"
-          echo "Tags: $tags"
           
       - name: Run build
         run: |
