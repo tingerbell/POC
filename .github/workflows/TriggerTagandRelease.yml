@@ -39,7 +39,6 @@ jobs:
           # Compare the current tag with existing tags
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
-            
             echo "Blocking PR merge..."
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
@@ -49,29 +48,34 @@ jobs:
             # Install octokit/rest.js
             npm install @octokit/rest
 
-            # Import octokit/rest.js and create a GitHub client
-            const { Octokit } = require('@octokit/rest');
-            const octokit = new Octokit({ auth: GITHUB_TOKEN });
+            # Run the JavaScript code with the `node` prefix
+            node - <<EOF
+              // Import octokit/rest.js and create a GitHub client
+              const { Octokit } = require('@octokit/rest');
+              const octokit = new Octokit({ auth: "${GITHUB_TOKEN}" });
 
-            // Create a comment on the PR to block the merge
-            octokit.rest.issues.createComment({
-              owner: REPO_OWNER,
-              repo: REPO_NAME,
-              issue_number: PR_NUMBER,
-              body: 'Merging this pull request is blocked due to failing merge conditions.'
-            });
+              // Create a comment on the PR to block the merge
+              octokit.rest.issues.createComment({
+                owner: "${REPO_OWNER}",
+                repo: "${REPO_NAME}",
+                issue_number: ${PR_NUMBER},
+                body: 'Merging this pull request is blocked due to failing merge conditions.'
+              });
 
-            // Set the PR status to failed to block the merge
-            octokit.rest.repos.createCommitStatus({
-              owner: REPO_OWNER,
-              repo: REPO_NAME,
-              sha: process.env.GITHUB_SHA,
-              state: 'failure',
-              target_url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}`,
-              description: 'Merge blocked due to failing conditions',
-              context: 'Merge Conditions'
-            });
+              // Set the PR status to failed to block the merge
+              octokit.rest.repos.createCommitStatus({
+                owner: "${REPO_OWNER}",
+                repo: "${REPO_NAME}",
+                sha: "${GITHUB_SHA}",
+                state: 'failure',
+                target_url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}`,
+                description: 'Merge blocked due to failing conditions',
+                context: 'Merge Conditions'
+              });
 
+              process.exit(1);
+            EOF
+          
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
