@@ -47,11 +47,19 @@ jobs:
             REPO_OWNER=$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH")
             REPO_NAME=$(jq --raw-output .repository.name "$GITHUB_EVENT_PATH")
 
-            # Create a comment on the PR to block the merge
-            echo "Merging this pull request is blocked due to failing merge conditions." | gh pr comment ${PR_NUMBER} --repo ${REPO_OWNER}/${REPO_NAME}
+            # Create a comment on the PR using GitHub REST API
+            curl -X POST \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{"body": "Merging this pull request is blocked due to failing merge conditions."}' \
+              "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${PR_NUMBER}/comments"
 
             # Set the PR status to failed to block the merge
-            gh pr status ${PR_NUMBER} --repo ${REPO_OWNER}/${REPO_NAME} --state error --description "Merge blocked due to failing conditions" --context "Merge Conditions"
+            curl -X POST \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{"state": "error", "target_url": "https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}", "description": "Merge blocked due to failing conditions", "context": "Merge Conditions"}' \
+              "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/statuses/${GITHUB_SHA}"
 
             # Exit with a non-zero status to indicate failure
             exit 1
