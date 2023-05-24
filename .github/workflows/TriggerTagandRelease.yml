@@ -26,7 +26,8 @@ jobs:
       - name: Get Tags
         id: get_tags
         run: |
-          tags=$(git ls-remote --tags origin | awk '{print $2}' | awk -F/ '{print $NF}')
+          git fetch --prune --tags
+          tags=$(git ls-remote --tags origin | awk -F/ '{print $NF}')
           echo "::set-output name=tags::$tags"
           
       - name: Run build
