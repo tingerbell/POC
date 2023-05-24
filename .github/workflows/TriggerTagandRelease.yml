@@ -16,7 +16,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       
-
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          
       - name: Read variables
         id: read_variables
         run: |
@@ -38,29 +42,15 @@ jobs:
             
             echo "Blocking PR merge..."
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-            CHECK_NAME="Merge Conditions Check"
-            CHECK_TITLE="Merge Conditions Check Failed"
-            CHECK_SUMMARY="The pull request does not meet the required merge conditions."
-            CHECK_CONCLUSION="failure"
-            CHECK_TEXT="Please make sure the PR has the 'allow_merge' label and is targeting the 'main' branch."
+            PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+            REPO_OWNER=$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH")
+            REPO_NAME=$(jq --raw-output .repository.name "$GITHUB_EVENT_PATH")
 
-            # Create a failure check status using the GitHub Checks API
-            curl \
-              -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -d "{
-                    \"name\": \"$CHECK_NAME\",
-                    \"head_sha\": \"$GITHUB_SHA\",
-                    \"status\": \"completed\",
-                    \"conclusion\": \"$CHECK_CONCLUSION\",
-                    \"output\": {
-                      \"title\": \"$CHECK_TITLE\",
-                      \"summary\": \"$CHECK_SUMMARY\",
-                      \"text\": \"$CHECK_TEXT\"
-                    }
-                  }" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/check-runs"
+            # Install octokit/rest.js
+            npm install @octokit/rest
+
+            # Run the JavaScript file using Node.js
+            node .github/workflows/block-pr-merge.js "${GITHUB_TOKEN}" "${REPO_OWNER}" "${REPO_NAME}" ${PR_NUMBER}
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
