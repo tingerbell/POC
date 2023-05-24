@@ -1,17 +1,16 @@
-name: Pass Outputs Between Jobs
+name: Passing Values Between Jobs
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   job1:
     runs-on: ubuntu-latest
+    outputs:
+      my_output: ${{ steps.step1.outputs.my_output }}
 
     steps:
-      - name: Set Output Value
-        id: set_output
+      - name: Step 1
+        id: step1
         run: |
           echo "::set-output name=my_output::Hello, World!"
 
@@ -20,6 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get Input Value
+      - name: Step 2
         run: |
           echo "Received input value: ${{ needs.job1.outputs.my_output }}"
