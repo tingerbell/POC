@@ -24,49 +24,17 @@ jobs:
           echo "::set-output name=stableVersion::$stableVersion"
       
       - name: Get Tags
-        id: get_tags
-        run: |
-          git fetch --prune --tags
-          tags=$(git ls-remote --tags origin | awk -F/ '{print $NF}')
-          echo "::set-output name=tags::$tags"
+        run: git fetch --tags
           
       - name: Run build
         run: |
           echo "Running build task..."
-          current_tag="${{ steps.read_variables.outputs.stableVersion }}"
-                    
-          tags="${{ steps.get_tags.outputs.tags }}"
-          echo $tags
+          CURRENT_TAG="${{ steps.read_variables.outputs.stableVersion }}"
+          EXISTING_TAGS=$(git tag --list)
           
-          if [[ $tags =~ (^|[[:space:]])$current_tag($|[[:space:]]) ]]; then
-            echo "Tag $current_tag exists!"
+          # Compare the current tag with existing tags
+          if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
+            echo "The current tag already exists in the main branch."
           else
-            echo "Tag $current_tag does not exist!"
+            echo "The current tag is unique and doesn't exist in the main branch."
           fi
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions: write-all
-    if: |
-      ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main" && github.event.pull_request.merged == true
-      
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.build.outputs.version }}
-          release_name: Release${{ needs.build.outputs.version }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-            - Third Change
-          draft: false
-          prerelease: false
-          
-          
-          
