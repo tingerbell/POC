@@ -26,7 +26,7 @@ jobs:
       - name: Get Tags
         run: git fetch --tags
           
-      - name: Compare Tag and run build
+      - name: Compare Tag and execute build
         run: |
           echo "Comapare tags..."
           CURRENT_TAG="${{ steps.read_variables.outputs.stableVersion }}"
