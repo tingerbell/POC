@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: main
 
       - name: Read variables
         id: read_variables
@@ -27,7 +29,7 @@ jobs:
         id: get_tags
         run: |
           git fetch --prune --tags
-          tags=$(git ls-remote --tags origin | awk '{print $2}' | awk -F/ '{print $NF}')
+          tags=$(git tag -l)
           echo "::set-output name=tags::$tags"
           
       - name: Run build
