@@ -50,33 +50,43 @@ jobs:
             # Install octokit/rest.js
             npm install @octokit/rest
 
-            # Run the JavaScript code with the `node` prefix
-            node - <<EOF
-              // Import octokit/rest.js and create a GitHub client
-              const { Octokit } = require('@octokit/rest');
+            # Create a JavaScript file for blocking PR merge
+            echo "const { Octokit } = require('@octokit/rest');
+
+            async function blockPRMerge() {
               const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-              // Create a comment on the PR to block the merge
-              octokit.rest.issues.createComment({
-                owner: "${REPO_OWNER}",
-                repo: "${REPO_NAME}",
-                issue_number: ${PR_NUMBER},
-                body: 'Merging this pull request is blocked due to failing merge conditions.'
-              });
+              try {
+                // Create a comment on the PR to block the merge
+                await octokit.rest.issues.createComment({
+                  owner: '${REPO_OWNER}',
+                  repo: '${REPO_NAME}',
+                  issue_number: ${PR_NUMBER},
+                  body: 'Merging this pull request is blocked due to failing merge conditions.'
+                });
 
-              // Set the PR status to failed to block the merge
-              octokit.rest.repos.createCommitStatus({
-                owner: "${REPO_OWNER}",
-                repo: "${REPO_NAME}",
-                sha: process.env.GITHUB_SHA,
-                state: 'failure',
-                target_url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}`,
-                description: 'Merge blocked due to failing conditions',
-                context: 'Merge Conditions'
-              });
+                // Set the PR status to failed to block the merge
+                await octokit.rest.repos.createCommitStatus({
+                  owner: '${REPO_OWNER}',
+                  repo: '${REPO_NAME}',
+                  sha: process.env.GITHUB_SHA,
+                  state: 'failure',
+                  target_url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}`,
+                  description: 'Merge blocked due to failing conditions',
+                  context: 'Merge Conditions'
+                });
 
-              process.exit(1);
-            EOF
+                process.exit(1);
+              } catch (error) {
+                console.error(error);
+                process.exit(1);
+              }
+            }
+
+            blockPRMerge();" > block-pr-merge.js
+
+            # Run the JavaScript file with Node.js
+            node .github/workflows/block-pr-merge.js
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
