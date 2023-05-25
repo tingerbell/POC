@@ -55,7 +55,7 @@ jobs:
               -H "Accept: application/vnd.github.v3+json" \
               -H "Content-Type: application/json" \
               -d '{"mergeable": false}' \
-              "https://api.github.com/repos/$repo_owner/$repo_name/pulls/$pr_number"
+              "https://api.github.com/repos/$repo_owner/pulls/$pr_number"
             exit 1
            
           else
