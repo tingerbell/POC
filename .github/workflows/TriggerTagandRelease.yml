@@ -42,13 +42,14 @@ jobs:
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
      
-            echo "::error::Build failed. Blocking PR merge."
-            curl -X POST \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{"enforce_admins": true}' \
-              "https://api.github.com/repos/${{ github.repository }}/branches/${{ github.head_ref }}/protection"
-            exit 1
+            conclusion=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \"https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \| jq -r '.conclusion')
+
+            if [[ "$conclusion" == "failure" ]]; then
+              echo "::error::Build failed. Blocking PR merge."
+              gh pr merge ${{ github.event.pull_request.number }} --merge --auto
+              exit 1
+            fi
+          
             
           else
             echo "The current tag is unique and doesn't exist in the main branch."
