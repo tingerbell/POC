@@ -68,6 +68,7 @@ jobs:
                 pull_number: prNumber,
                 mergeable_state: 'blocked',
               });
+              }
             
   
   deploy:
