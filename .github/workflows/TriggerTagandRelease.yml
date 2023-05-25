@@ -13,6 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions: write-all
+    if: |
+      ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main"
     outputs:
       version: ${{ steps.read_variables.outputs.stableVersion }}
     steps:
