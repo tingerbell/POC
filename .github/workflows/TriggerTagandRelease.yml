@@ -48,7 +48,7 @@ jobs:
               --request PATCH \
               --data '{"mergeable_state": "blocked"}' \
               "https://api.github.com/repos/$repo_name/pulls/$pr_number"
-            echo "PR #$PR_NUMBER merge is blocked.
+            echo "PR #$PR_NUMBER merge is blocked."
           else
             echo "The current tag is unique and doesn't exist in the main branch."
           fi
