@@ -1,4 +1,4 @@
-name: Build and Deploy example
+name: Build and Deploy 
 
 on:
   pull_request:
@@ -42,31 +42,11 @@ jobs:
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
      
-            echo "Blocking PR merge..."
-            PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-            REPO_OWNER=$(jq --raw-output .repository.owner.login "$GITHUB_EVENT_PATH")
-            REPO_NAME=$(jq --raw-output .repository.name "$GITHUB_EVENT_PATH")
-            echo "PR_NUMBER: $PR_NUMBER"
-            echo "REPO_OWNER: $REPO_OWNER"
-            echo "REPO_NAME: $REPO_NAME"
-
-            # Create a comment on the PR using GitHub REST API
-            curl -X POST \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              -d '{"body": "Merging this pull request is blocked due to failing merge conditions."}' \
-              "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${PR_NUMBER}/comments"
-
-            # Set the PR status to failed to block the merge
-            curl -X POST \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              -d '{"state": "error", "target_url": "https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/${PR_NUMBER}", "description": "Merge blocked due to failing conditions", "context": "Merge Conditions"}' \
-              "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/statuses/${GITHUB_SHA}"
-
-            # Exit with a non-zero status to indicate failure
+            conclusion=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" | jq -r '.conclusion')
+            echo "::error::Build failed. Blocking PR merge."
+            gh pr merge ${{ github.event.pull_request.number }} --merge --auto
             exit 1
-            
+           
           else
             echo "The current tag is unique and doesn't exist in the main branch."
           fi
