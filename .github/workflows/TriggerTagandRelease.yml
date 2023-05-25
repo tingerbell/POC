@@ -42,7 +42,7 @@ jobs:
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
             
-            pr_number=39
+            pr_number=${{ github.event.pull_request.number }}
             repo_owner=tingerbell
             repo_name=POC
             # Get the current PR data
