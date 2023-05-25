@@ -1,11 +1,11 @@
-name: Build and Deploy workflow 
+name: Build and Deploy  
 
 on:
  pull_request:
    types:
      - opened
      - merged
-     - closed
+   
    branches:
       - main
 
