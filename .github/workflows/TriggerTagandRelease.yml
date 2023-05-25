@@ -1,0 +1,88 @@
+name: Build and Deploy workflow
+
+on:
+ pull_request:
+   types:
+     - opened
+     - merged
+     - closed
+   branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      version: ${{ steps.read_variables.outputs.stableVersion }}
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          
+      - name: Read variables
+        id: read_variables
+        run: |
+          stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
+          echo "::set-output name=stableVersion::$stableVersion"
+      
+      - name: Get Tags
+        run: git fetch --tags
+          
+      - name: Compare Tag and Execute build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Comapare tags..."
+          CURRENT_TAG="${{ steps.read_variables.outputs.stableVersion }}"
+          EXISTING_TAGS=$(git tag --list)
+          
+          # Compare the current tag with existing tags
+          if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
+            echo "The current tag already exists in the main branch."
+            
+            repo_name=${{ github.repository }}
+            pr_number=${{ github.event.pull_request.number }}
+            curl --header "Authorization: Bearer $GITHUB_TOKEN" \
+              --request PATCH \
+              --data '{"mergeable_state": "blocked"}' \
+              "https://api.github.com/repos/$repo_name/pulls/$pr_number"
+            echo "PR #$PR_NUMBER merge is blocked."
+            exit 1
+          else
+            echo "The current tag is unique and doesn't exist in the main branch."
+            echo "Continue with build logic"
+          fi
+          
+      
+            
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    if: |
+      github.event.pull_request.merged == true
+      
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.build.outputs.version }}
+          release_name: Release${{ needs.build.outputs.version }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+            - Third Change
+          draft: false
+          prerelease: false             
+        
