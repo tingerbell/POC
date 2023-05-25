@@ -68,7 +68,7 @@ jobs:
                 pull_number: prNumber,
                 mergeable_state: 'blocked',
               });
-              console.log(`PR #${prNumber} merge is blocked.`);
+            
   
   deploy:
     needs: build
