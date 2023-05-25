@@ -52,6 +52,7 @@ jobs:
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
+            echo "Continue with build logic"
           fi
           
       
