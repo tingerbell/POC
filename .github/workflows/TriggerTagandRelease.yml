@@ -47,7 +47,7 @@ jobs:
             echo "::error::Build failed. Blocking PR merge."
             pr_number=${{ github.event.pull_request.number }}
             repo_owner=${{ github.repository_owner }}
-            repo_name=${{ github.repository_name }}
+            repo_name=${{ github.repository }}
 
             # Update pull request mergeability to "false" to block the merge
             curl -X PATCH \
