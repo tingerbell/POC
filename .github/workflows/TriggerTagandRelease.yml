@@ -42,9 +42,9 @@ jobs:
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
             
-            pr_number=${{ github.event.pull_request.number }}
-            repo_owner=${{ github.repository_owner }}
-            repo_name=${{ github.repository_name }}
+            pr_number=39
+            repo_owner=tingerbell
+            repo_name=POC
 
             # Update pull request mergeability to "false" to block the merge
             curl -X PATCH \
