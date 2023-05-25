@@ -1,4 +1,4 @@
-name: Build and Deploy workflow
+name: Build and Deploy workflow example
 
 on:
  pull_request:
