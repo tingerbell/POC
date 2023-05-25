@@ -45,19 +45,12 @@ jobs:
             pr_number=${{ github.event.pull_request.number }}
             repo_owner=tingerbell
             repo_name=POC
-            # Get the current PR data
-            pr_data=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/$repo_owner/$repo_name/pulls/$pr_number")
-            # Extract the current mergeable state
-            mergeable_state=$(echo "$pr_data" | jq -r '.mergeable_state')
-            updated_pr_data=$(echo "$pr_data" | jq '.mergeable_state = "blocked"')
-            curl -X PATCH \
+            curl -X POST \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Content-Type: application/json" \
-              -d "$updated_pr_data" \
-              "https://api.github.com/repos/$repo_owner/$repo_name/pulls/$pr_number"
-
-            
+              -d '{"labels": ["build-failure"]}' \
+              "https://api.github.com/repos/$repo_owner/$repo_name/issues/$pr_number/labels"
             exit 1
            
           else
