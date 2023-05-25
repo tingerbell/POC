@@ -49,6 +49,7 @@ jobs:
               --data '{"mergeable_state": "blocked"}' \
               "https://api.github.com/repos/$repo_name/pulls/$pr_number"
             echo "PR #$PR_NUMBER merge is blocked."
+            exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
           fi
