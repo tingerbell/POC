@@ -45,14 +45,19 @@ jobs:
             pr_number=39
             repo_owner=tingerbell
             repo_name=POC
-
-            # Update pull request mergeability to "false" to block the merge
+            # Get the current PR data
+            pr_data=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/$repo_owner/$repo_name/pulls/$pr_number")
+            # Extract the current mergeable state
+            mergeable_state=$(echo "$pr_data" | jq -r '.mergeable_state')
+            updated_pr_data=$(echo "$pr_data" | jq '.mergeable_state = "blocked"')
             curl -X PATCH \
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Content-Type: application/json" \
-              -d '{"mergeable": false}' \
+              -d "$updated_pr_data" \
               "https://api.github.com/repos/$repo_owner/$repo_name/pulls/$pr_number"
+
+            
             exit 1
            
           else
