@@ -48,14 +48,6 @@ jobs:
           # Compare the current tag with existing tags
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
             echo "The current tag already exists in the main branch."
-            
-            repo_name=${{ github.repository }}
-            pr_number=${{ github.event.pull_request.number }}
-            curl --header "Authorization: Bearer $GITHUB_TOKEN" \
-              --request PATCH \
-              --data '{"mergeable_state": "blocked"}' \
-              "https://api.github.com/repos/$repo_name/pulls/$pr_number"
-            echo "PR #$PR_NUMBER merge is blocked."
             exit 1
           else
             echo "The current tag is unique and doesn't exist in the main branch."
