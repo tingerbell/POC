@@ -43,7 +43,9 @@ jobs:
           
           # Compare the current tag with existing tags
           if [[ "${EXISTING_TAGS}" == *"${CURRENT_TAG}"* ]]; then
+
             echo -e "\e[1;93mThe current tag ${CURRENT_TAG} already exists in the main branch."
+
             exit 1
           else
             echo -e "\e[1;93mThe current tag is unique and doesn't exist in the main branch."
