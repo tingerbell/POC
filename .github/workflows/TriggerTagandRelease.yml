@@ -48,7 +48,7 @@ jobs:
             exit 1
           else
             echo -e "\e[1;93mThe current tag is unique and doesn't exist in the main branch."
-            echo -e "\e[1;93m\e[1;4m Tag :${CURRENT_TAG} and Release: Release ${CURRENT_TAG} will be created in further stage"
+            echo -e "\e[1;93m\e[1;4m Tag :${CURRENT_TAG} and Release ${CURRENT_TAG} will be created in further stage"
 
           fi
           
