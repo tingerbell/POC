@@ -68,8 +68,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
 
-          tag_name: $stableVersion
-          release_name: Release $stableVersion
+          tag_name: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
+          release_name: Release ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
           body: |
             Changes in this Release
            
