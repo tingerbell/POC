@@ -67,7 +67,7 @@ jobs:
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          STABLE_VERSION: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
+         
         with:
           tag_name: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
           release_name: Release ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
