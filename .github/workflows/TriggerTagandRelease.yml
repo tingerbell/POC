@@ -69,8 +69,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           STABLE_VERSION: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
         with:
-          tag_name: ${{ env.STABLE_VERSION }}
-          release_name: Release ${{ env.STABLE_VERSION }}
+          tag_name: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
+          release_name: Release ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
           body: |
             Changes in this Release
            
@@ -79,5 +79,5 @@ jobs:
 
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${{ env.STABLE_VERSION }}
-          echo -e "\e[1;93mRelease ID:${{ env.STABLE_VERSION }} created successfully"
+          echo -e "\e[1;93mCreated release with tag: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
+          echo -e "\e[1;93mRelease ID:${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }} created successfully"
