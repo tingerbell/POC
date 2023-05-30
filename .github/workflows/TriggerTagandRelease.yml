@@ -17,8 +17,7 @@ jobs:
     permissions: write-all
     if: |
       ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main"
-    outputs:
-      version: ${{ steps.read_variables.outputs.stableVersion }}
+    
     steps:
 
       - name: Checkout repository
@@ -38,7 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          CURRENT_TAG=${{ env.stableVersion }}
+          CURRENT_TAG=$stableVersion
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -69,8 +68,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
 
-          tag_name: ${{ env.stableVersion }}
-          release_name: Release ${{ env.stableVersion }}
+          tag_name: $stableVersion
+          release_name: Release $stableVersion
           body: |
             Changes in this Release
            
@@ -79,5 +78,5 @@ jobs:
 
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${{ env.stableVersion }}
-          echo -e "\e[1;93mRelease ID:${{ env.stableVersion }} created successfully"
+          echo -e "\e[1;93mCreated release with tag: $stableVersion
+          echo -e "\e[1;93mRelease ID:$stableVersion created successfully"
