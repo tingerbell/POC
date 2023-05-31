@@ -1,4 +1,4 @@
-name: Build and Deploy workflow
+name: Build and Deploy workflow sample
 
 on:
  pull_request:
@@ -17,23 +17,24 @@ jobs:
     permissions: write-all
     if: |
       ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main"
-    
+    outputs:
+      version: ${{ steps.read_variables.outputs.stableVersion }}
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v2
       
-
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          
       - name: Read variables
         id: read_variables
         run: |
-          stableVersion=$(grep 'stableVersion:' .github/variables.yml | awk -F ': ' '{print $2}')
-          echo "stableVersion=${stableVersion}" >> ${{ runner.temp }}/env.properties
-          echo "stableVersion=${stableVersion}" > ${{ runner.temp }}/env.sh
-          chmod +x ${{ runner.temp }}/env.sh
-          echo "env_path=${{ runner.temp }}/env.sh" >> $GITHUB_ENV  # Export env.sh file path
-
-          
+          stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
+          echo "::set-output name=stableVersion::$stableVersion"
+      
       - name: Get Tags
         run: git fetch --tags
           
@@ -41,9 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          source ${{ runner.temp }}/env.sh
-          CURRENT_TAG=$stableVersion
-          CURRENT_TAG=$(echo "$stableVersion" | cut -d'=' -f2)
+          echo "Comapare tags..."
+          CURRENT_TAG="${{ steps.read_variables.outputs.stableVersion }}"
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -56,7 +56,9 @@ jobs:
             echo ${CURRENT_TAG}
           fi
           
- 
+      
+            
+  
   CreateTagandRelease:
     needs: PreCheckTag
     runs-on: ubuntu-latest
@@ -65,30 +67,24 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
-      - name: Retrieve CURRENT_TAG 
-        run: |
-          stableVersion=$(grep 'stableVersion:' .github/variables.yml | awk -F ': ' '{print $2}')
-          echo "stableVersion=${stableVersion}" >> ${{ runner.temp }}/env.properties
-          echo "stableVersion=${stableVersion}" > ${{ runner.temp }}/env.sh
-          chmod +x ${{ runner.temp }}/env.sh
-          CURRENT_TAG=$(echo "$stableVersion" | cut -d'=' -f2)
-          
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         
         with:
-          tag_name: ${CURRENT_TAG}
-          release_name: Release ${CURRENT_TAG}
+          tag_name: ${{ needs.build.outputs.version }}
+          release_name: Release${{ needs.build.outputs.version }}
           body: |
             Changes in this Release
-           
+            - First Change
+            - Second Change
+            - Third Change
           draft: false
-          prerelease: false             
-
+          prerelease: false    
+        
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${CURRENT_TAG}
-          echo -e "\e[1;93mRelease ID:${CURRENT_TAG} created successfully"
+          echo -e "\e[1;93mCreated release with tag: ${{ needs.build.outputs.version }}
+          echo -e "\e[1;93mRelease ID:${{ needs.build.outputs.version }} created successfully"
+        
