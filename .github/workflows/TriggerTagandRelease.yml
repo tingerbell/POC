@@ -30,14 +30,14 @@ jobs:
         id: pr_link
         run: |
           pullRequestLink=${{ github.event.pull_request.html_url }}
-          echo "Pull Request Link: $pullRequestLink"
-          echo "::set-output name=pullRequestLink::$pullRequestLink"
+          echo "pullRequestLink= $pullRequestLink" >> $GITHUB_OUTPUT
+        
           
       - name: Read variables
         id: read_variables
         run: |
           stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
-          echo "::set-output name=stableVersion::$stableVersion"
+          echo "stableVersion=$stableVersion">> $GITHUB_OUTPUT
       
       - name: Get Tags
         run: git fetch --tags
