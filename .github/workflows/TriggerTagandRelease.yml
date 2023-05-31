@@ -85,6 +85,6 @@ jobs:
         
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${{ needs.PreCheckTag.outputs.version }}
+          echo -e "\e[1;93mCreated release with tag: ${{ needs.PreCheckTag.outputs.version }}"
           echo -e "\e[1;93mRelease ID:${{ needs.PreCheckTag.outputs.version }} created successfully"
         
