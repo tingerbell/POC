@@ -29,7 +29,8 @@ jobs:
         run: |
           echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
           echo "stableVersion=$(cat ${{ runner.temp }}/env.properties)" > ${{ runner.temp }}/env.sh
-      
+          chmod +x ${{ runner.temp }}/env.sh
+          
       - name: Get Tags
         run: git fetch --tags
           
