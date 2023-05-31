@@ -28,6 +28,7 @@ jobs:
         id: read_variables
         run: |
           echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
+          echo "stableVersion=$(cat ${{ runner.temp }}/env.properties)" > ${{ runner.temp }}/env.sh
       
       - name: Get Tags
         run: git fetch --tags
@@ -37,7 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
         run: |
-          CURRENT_TAG=cat ${{ runner.temp }}/env.properties
+          CURRENT_TAG=$stableVersion
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -61,12 +62,17 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
+      - name: Retrieve CURRENT_TAG from previous stage
+        run: |
+          source ${{ runner.temp }}/env.sh
+          echo "The CURRENT_TAG received from the previous stage is $stableVersion"
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ENV_FILE_PATH: ${{ runner.temp }}/env.properties
+         
         with:
           tag_name: $stableVersion
           release_name: Release $stableVersion
