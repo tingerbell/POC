@@ -27,6 +27,7 @@ jobs:
       - name: Read variables
         id: read_variables
         run: |
+          echo "::set-env name=stableVersion::$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')"
           echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
       
       - name: Get Tags
