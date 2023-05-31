@@ -19,17 +19,18 @@ jobs:
       ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main"
     outputs:
       version: ${{ steps.read_variables.outputs.stableVersion }}
-      commitInfo: ${{ steps.get_commit_messages.outputs.commit_messages }}
+      prInfo: ${{ steps.pr_link.outputs.pullRequestLink }}
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v2
         
-      - name: Get commit messages
-        id: get_commit_messages
+      - name: Get Pull Request Link
+        id: pr_link
         run: |
-          COMMIT_MESSAGES=$(git log --pretty=format:"- %s%n%b" ${{ github.event.before }}..${{ github.sha }})
-          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
+          pullRequestLink=${{ github.event.pull_request.html_url }}
+          echo "Pull Request Link: $pullRequestLink"
+          echo "::set-output name=pullRequestLink::$pullRequestLink"
           
       - name: Read variables
         id: read_variables
@@ -78,8 +79,8 @@ jobs:
           tag_name: ${{ needs.PreCheckTag.outputs.version }}
           release_name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
-            Commit Details:
-            ${{ needs.PreCheckTag.outputs.commitInfo }}
+            PR Details:
+            ${{ needs.PreCheckTag.outputs.prInfo }}
           draft: false
           prerelease: false    
         
