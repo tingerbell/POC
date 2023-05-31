@@ -79,7 +79,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.PreCheckTag.outputs.version }}
-          release_name: Release${{ needs.PreCheckTag.outputs.version }}
+          name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
             Click on this link ${{ needs.PreCheckTag.outputs.prInfo }} to check the relevant set of commits from the pull request.    
           draft: false
