@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Retrieve CURRENT_TAG from previous stage
         run: |
-          env_path=${{ env.env_path }}  # Retrieve env.sh file path from environment variable
+          env_path=$ENV_PATH  # Retrieve env.sh file path from environment variable
           source "$env_path"  # Source the env.sh file
           echo "The CURRENT_TAG received from the previous stage is $stableVersion"
 
