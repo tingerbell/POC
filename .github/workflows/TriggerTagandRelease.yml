@@ -23,12 +23,7 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          
+     
       - name: Read variables
         id: read_variables
         run: |
@@ -76,15 +71,14 @@ jobs:
           tag_name: ${{ needs.PreCheckTag.outputs.version }}
           release_name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-            - Third Change
+            PR Details:
+            - Title: ${{ github.event.pull_request.title }}
+            - Number: ${{ github.event.pull_request.number }}
           draft: false
           prerelease: false    
         
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${{ needs.PreCheckTag.outputs.version }}"
-          echo -e "\e[1;93mRelease ID:${{ needs.PreCheckTag.outputs.version }} created successfully"
+          echo -e "\e[1;93mCreated tag: ${{ needs.PreCheckTag.outputs.version }} and Release ID:${{ needs.PreCheckTag.outputs.version }}  successfully"
+          
         
