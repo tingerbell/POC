@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
           echo "stableVersion=$(cat ${{ runner.temp }}/env.properties)" > ${{ runner.temp }}/env.sh
+          echo "::set-env name=ENV_PATH::${{ runner.temp }}/env.sh"
           chmod +x ${{ runner.temp }}/env.sh
           
       - name: Get Tags
@@ -70,10 +71,8 @@ jobs:
     steps:
       - name: Retrieve CURRENT_TAG from previous stage
         run: |
-          source ${{ runner.temp }}/env.sh
-          stableVersion=$stableVersion
-          stableVersion=$(echo "$stableVersion" | cut -d'=' -f2)
-          echo "$stableVersion"
+          source ${{ needs.PreCheckTag.id }}_env_path
+          source $env_path
           echo "The CURRENT_TAG received from the previous stage is $stableVersion"
           
       - name: Create Release
