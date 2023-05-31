@@ -17,7 +17,9 @@ jobs:
     permissions: write-all
     if: |
       ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main"
-    
+    outputs:
+      output1: ${{ steps.read_variables.outputs.stableVersion }}
+      
     steps:
 
       - name: Checkout repository
@@ -27,12 +29,8 @@ jobs:
       - name: Read variables
         id: read_variables
         run: |
-          stableVersion=$(grep 'stableVersion:' .github/variables.yml | awk -F ': ' '{print $2}')
-          echo "stableVersion=${stableVersion}" >> ${{ runner.temp }}/env.properties
-          echo "stableVersion=${stableVersion}" > ${{ runner.temp }}/env.sh
-          chmod +x ${{ runner.temp }}/env.sh
-          echo "env_path=${{ runner.temp }}/env.sh" >> $GITHUB_ENV  # Export env.sh file path
-
+          stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
+          echo "stableVersion::$stableVersion" >> "$GITHUB_OUTPUT"
           
       - name: Get Tags
         run: git fetch --tags
@@ -41,9 +39,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          source ${{ runner.temp }}/env.sh
-          CURRENT_TAG=$stableVersion
-          CURRENT_TAG=$(echo "$stableVersion" | cut -d'=' -f2)
+          
+          CURRENT_TAG="${{ steps.read_variables.outputs.stableVersion }}"
+          
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -65,14 +63,7 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
-      - name: Retrieve CURRENT_TAG from previous stage
-        run: |
-          echo $ENV_PATH
-          env_path=$ENV_PATH  # Retrieve env.sh file path from environment variable
-          source "$env_path"  # Source the env.sh file
-          echo "The CURRENT_TAG received from the previous stage is $stableVersion"
-
-          
+        
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
@@ -80,8 +71,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
         with:
-          tag_name: $stableVersion
-          release_name: Release $stableVersion
+          tag_name: ${{needs.PreCheckTag.outputs.output1}}
+          release_name: Release ${{needs.PreCheckTag.outputs.output1}}
           body: |
             Changes in this Release
            
@@ -90,5 +81,5 @@ jobs:
 
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: $stableVersion
-          echo -e "\e[1;93mRelease ID:$stableVersion created successfully"
+          echo -e "\e[1;93mCreated release with tag: ${{needs.PreCheckTag.outputs.output1}}
+          echo -e "\e[1;93mRelease ID:${{needs.PreCheckTag.outputs.output1}} created successfully"
