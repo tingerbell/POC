@@ -69,19 +69,20 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
+      - name: Set up Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v3
+        run: |
+          npm install -g actions/create-release@v1
+          create-release --tag_name ${{ needs.PreCheckTag.outputs.version }} --release_name Release${{ needs.PreCheckTag.outputs.version }} --body "Click on this link ${{ needs.PreCheckTag.outputs.prInfo }} to check the relevant set of commits from the pull request." --draft false --prerelease false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.PreCheckTag.outputs.version }}
-          release_name: Release${{ needs.PreCheckTag.outputs.version }}
-          body: |
-            Click on this link ${{ needs.PreCheckTag.outputs.prInfo }} to check the relevant set of commits from the pull request.    
-          draft: false
-          prerelease: false    
-        
+          
+       
       - name: Display Release and Tag Details
         run: |
           echo -e "\e[1;93mCreated tag: ${{ needs.PreCheckTag.outputs.version }} and Release ID:${{ needs.PreCheckTag.outputs.version }}  successfully"
