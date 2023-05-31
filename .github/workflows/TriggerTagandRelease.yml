@@ -1,4 +1,4 @@
-name: Build and Deploy workflow sample
+name: CreateTagandRelease
 
 on:
  pull_request:
@@ -69,8 +69,9 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
-      - name: Sample File
-        run: echo "# Good things have arrived" > Release.txt
+      - name: Release notes
+        run: |
+           echo -e "\e[1;93mCreated tag: ${{ needs.PreCheckTag.outputs.version }} and Release ID:${{ needs.PreCheckTag.outputs.version }}  successfully"> Release.txt
         
       - name: Create Release
         id: create_release
@@ -85,8 +86,6 @@ jobs:
           draft: false
           prerelease: false  
           files: Release.txt
-           
-          
        
       - name: Display Release and Tag Details
         run: |
