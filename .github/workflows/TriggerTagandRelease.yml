@@ -27,7 +27,6 @@ jobs:
       - name: Read variables
         id: read_variables
         run: |
-          echo "::set-env name=stableVersion::$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')"
           echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
       
       - name: Get Tags
@@ -38,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
         run: |
-          CURRENT_TAG=$stableVersion
+          CURRENT_TAG=cat ${{ runner.temp }}/env.properties
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -67,7 +66,7 @@ jobs:
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         
+          ENV_FILE_PATH: ${{ runner.temp }}/env.properties
         with:
           tag_name: $stableVersion
           release_name: Release $stableVersion
