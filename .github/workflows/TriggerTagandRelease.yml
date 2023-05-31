@@ -30,18 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       
-      - name: Use Node.js 16
-        run: |
-          echo "::set-env name=NODE_VERSION::16"
-
-      - name: Use Node.js 16 for the rest of the job
-        env:
-          NODE_VERSION: ${{ env.NODE_VERSION }}
-        run: |
-          echo "Node.js version: $NODE_VERSION"
-          # Perform other actions with Node.js 16
-          
-      
       - name: Get Pull Request Link
         id: pr_link
         run: |
