@@ -71,10 +71,9 @@ jobs:
           tag_name: ${{ needs.PreCheckTag.outputs.version }}
           release_name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-            - Third Change
+            PR Details:
+            - Title: ${{ github.event.pull_request.title }}
+            - Number: ${{ github.event.pull_request.number }}
           draft: false
           prerelease: false    
         
