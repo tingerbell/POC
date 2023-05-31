@@ -63,6 +63,9 @@ jobs:
   CreateTagandRelease:
     needs: PreCheckTag
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     permissions: write-all
     if: |
       github.event.pull_request.merged == true
