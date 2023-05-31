@@ -22,5 +22,5 @@ jobs:
     steps:
       - name: Retrieve variable value
         run: |
-          myVariableValue=$(cat ${{ github.workspace }}/myVariable.txt)
+          myVariableValue=$(cat "${{ github.workspace }}/myVariable.txt")
           echo "The variable value is $myVariableValue"
