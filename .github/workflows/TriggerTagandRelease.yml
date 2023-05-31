@@ -63,9 +63,7 @@ jobs:
   CreateTagandRelease:
     needs: PreCheckTag
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]
+   
     permissions: write-all
     if: |
       github.event.pull_request.merged == true
@@ -73,7 +71,7 @@ jobs:
     steps:
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
