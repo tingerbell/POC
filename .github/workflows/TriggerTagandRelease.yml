@@ -32,6 +32,7 @@ jobs:
           echo "stableVersion=${stableVersion}" > ${{ runner.temp }}/env.sh
           chmod +x ${{ runner.temp }}/env.sh
           echo "env_path=${{ runner.temp }}/env.sh" >> $GITHUB_ENV  # Export env.sh file path
+
           
       - name: Get Tags
         run: git fetch --tags
@@ -67,8 +68,9 @@ jobs:
       - name: Retrieve CURRENT_TAG from previous stage
         run: |
           env_path=${{ env.env_path }}  # Retrieve env.sh file path from environment variable
-          source $env_path
+          . $env_path
           echo "The CURRENT_TAG received from the previous stage is $stableVersion"
+
           
       - name: Create Release
         id: create_release
