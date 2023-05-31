@@ -40,7 +40,11 @@ jobs:
           
         run: |
           source ${{ runner.temp }}/env.sh
-          CURRENT_TAG=$stableVersion.stableVersion
+          
+          CURRENT_TAG=$stableVersion
+          CURRENT_TAG=$(echo "$stableVersion" | cut -d'=' -f2)
+          echo "$CURRENT_TAG"
+          
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -67,6 +71,9 @@ jobs:
       - name: Retrieve CURRENT_TAG from previous stage
         run: |
           source ${{ runner.temp }}/env.sh
+          stableVersion=$stableVersion
+          stableVersion=$(echo "$stableVersion" | cut -d'=' -f2)
+          echo "$stableVersion"
           echo "The CURRENT_TAG received from the previous stage is $stableVersion"
           
       - name: Create Release
