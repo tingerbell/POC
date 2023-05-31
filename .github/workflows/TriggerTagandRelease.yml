@@ -79,7 +79,7 @@ jobs:
           release_name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
             Commit Details:
-            ${{ steps.get_commit_messages.outputs.commitInfo }}
+            ${{ needs.PreCheckTag.outputs.commitInfo }}
           draft: false
           prerelease: false    
         
