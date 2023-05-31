@@ -19,11 +19,18 @@ jobs:
       ${{ github.head_ref }} == "main" && ${{ github.base_ref }} == "main"
     outputs:
       version: ${{ steps.read_variables.outputs.stableVersion }}
+      commitInfo: ${{ steps.get_commit_messages.outputs.commit_messages }}
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v2
-     
+        
+      - name: Get commit messages
+        id: get_commit_messages
+        run: |
+          COMMIT_MESSAGES=$(git log --pretty=format:"- %s%n%b" ${{ github.event.before }}..${{ github.sha }})
+          echo "::set-output name=commit_messages::$COMMIT_MESSAGES"
+          
       - name: Read variables
         id: read_variables
         run: |
@@ -71,9 +78,8 @@ jobs:
           tag_name: ${{ needs.PreCheckTag.outputs.version }}
           release_name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
-            PR Details:
-            - Title: ${{ github.event.pull_request.title }}
-            - Number: ${{ github.event.pull_request.number }}
+            Commit Details:
+            ${{ steps.get_commit_messages.outputs.commitInfo }}
           draft: false
           prerelease: false    
         
