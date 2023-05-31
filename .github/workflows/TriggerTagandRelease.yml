@@ -27,8 +27,7 @@ jobs:
       - name: Read variables
         id: read_variables
         run: |
-          stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
-          echo "stableVersion=$stableVersion" >> $GITHUB_ENV
+          echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
       
       - name: Get Tags
         run: git fetch --tags
@@ -69,8 +68,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
         with:
-          tag_name: ${{ needs.PreCheckTag.outputs.stableVersion }}
-          release_name: Release ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
+          tag_name: $stableVersion
+          release_name: Release $stableVersion
           body: |
             Changes in this Release
            
@@ -79,5 +78,5 @@ jobs:
 
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
-          echo -e "\e[1;93mRelease ID:${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }} created successfully"
+          echo -e "\e[1;93mCreated release with tag: $stableVersion
+          echo -e "\e[1;93mRelease ID:$stableVersion created successfully"
