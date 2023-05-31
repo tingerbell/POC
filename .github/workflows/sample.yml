@@ -1,0 +1,37 @@
+name: sample
+
+on:
+ pull_request:
+   types:
+     - opened
+     - synchronize 
+     - merged
+     - closed
+   
+   branches:
+      - main
+jobs:
+  first_stage_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create artifact
+        run: |
+          echo "Hello, World!" > myVariable.txt
+          echo "myVariable.txt" > artifact.txt
+        artifacts:
+          paths:
+            - myVariable.txt
+            - artifact.txt
+
+  second_stage_job:
+    needs: first_stage_job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Retrieve variable value
+        run: |
+          myVariableValue=$(cat myVariable.txt)
+          echo "The variable value is $myVariableValue"
