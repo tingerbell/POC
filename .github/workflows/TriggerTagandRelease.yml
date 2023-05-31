@@ -29,6 +29,8 @@ jobs:
           
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          node-version: 16
       
       - name: Get Pull Request Link
         id: pr_link
