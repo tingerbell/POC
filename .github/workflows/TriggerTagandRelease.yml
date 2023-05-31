@@ -22,13 +22,9 @@ jobs:
       prInfo: ${{ steps.pr_link.outputs.pullRequestLink }}
       
     steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          
+      
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - name: Get Pull Request Link
         id: pr_link
