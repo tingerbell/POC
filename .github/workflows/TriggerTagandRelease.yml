@@ -27,8 +27,8 @@ jobs:
       - name: Read variables
         id: read_variables
         run: |
-          stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')
-          echo "stableVersion=$stableVersion" >> $GITHUB_ENV
+          echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
+          echo "stableVersion=$(cat ${{ runner.temp }}/env.properties)" > ${{ runner.temp }}/env.sh
       
       - name: Get Tags
         run: git fetch --tags
@@ -38,6 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
         run: |
+          source ${{ runner.temp }}/env.sh
           CURRENT_TAG=$stableVersion
           EXISTING_TAGS=$(git tag --list)
           
@@ -62,6 +63,11 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
+      - name: Retrieve CURRENT_TAG from previous stage
+        run: |
+          source ${{ runner.temp }}/env.sh
+          echo "The CURRENT_TAG received from the previous stage is $stableVersion"
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
@@ -69,8 +75,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
         with:
-          tag_name: ${{ needs.PreCheckTag.outputs.stableVersion }}
-          release_name: Release ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
+          tag_name: $stableVersion
+          release_name: Release $stableVersion
           body: |
             Changes in this Release
            
@@ -79,5 +85,5 @@ jobs:
 
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: ${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }}
-          echo -e "\e[1;93mRelease ID:${{ needs.PreCheckTag.outputs['read_variables.stableVersion'] }} created successfully"
+          echo -e "\e[1;93mCreated release with tag: $stableVersion
+          echo -e "\e[1;93mRelease ID:$stableVersion created successfully"
