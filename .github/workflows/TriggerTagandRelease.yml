@@ -38,6 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
         run: |
+          source ${{ runner.temp }}/env.sh
           CURRENT_TAG=$stableVersion
           EXISTING_TAGS=$(git tag --list)
           
