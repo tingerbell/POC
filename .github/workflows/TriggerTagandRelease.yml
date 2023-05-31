@@ -29,7 +29,8 @@ jobs:
         run: |
           echo "stableVersion=$(grep "stableVersion:" .github/variables.yml | awk -F ": " '{print $2}')" >> ${{ runner.temp }}/env.properties
           echo "stableVersion=$(cat ${{ runner.temp }}/env.properties)" > ${{ runner.temp }}/env.sh
-      
+          chmod +x ${{ runner.temp }}/env.sh
+          
       - name: Get Tags
         run: git fetch --tags
           
@@ -39,7 +40,11 @@ jobs:
           
         run: |
           source ${{ runner.temp }}/env.sh
+          
           CURRENT_TAG=$stableVersion
+          CURRENT_TAG=$(echo "$stableVersion" | cut -d'=' -f2)
+          echo "$CURRENT_TAG"
+          
           EXISTING_TAGS=$(git tag --list)
           
           # Compare the current tag with existing tags
@@ -51,7 +56,7 @@ jobs:
           else
             echo -e "\e[1;93mThe current tag is unique and doesn't exist in the main branch."
             echo -e "\e[1;93m\e[1;4m Tag :${CURRENT_TAG} and Release ${CURRENT_TAG} will be created in further stage"
-
+            echo ${CURRENT_TAG}
           fi
           
  
@@ -66,6 +71,9 @@ jobs:
       - name: Retrieve CURRENT_TAG from previous stage
         run: |
           source ${{ runner.temp }}/env.sh
+          stableVersion=$stableVersion
+          stableVersion=$(echo "$stableVersion" | cut -d'=' -f2)
+          echo "$stableVersion"
           echo "The CURRENT_TAG received from the previous stage is $stableVersion"
           
       - name: Create Release
