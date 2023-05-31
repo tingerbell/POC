@@ -65,13 +65,13 @@ jobs:
       github.event.pull_request.merged == true
       
     steps:
-      - name: Retrieve CURRENT_TAG from previous stage
+      - name: Retrieve CURRENT_TAG 
         run: |
-          echo $ENV_PATH
-          env_path=$ENV_PATH  # Retrieve env.sh file path from environment variable
-          source "$env_path"  # Source the env.sh file
-          echo "The CURRENT_TAG received from the previous stage is $stableVersion"
-
+          stableVersion=$(grep 'stableVersion:' .github/variables.yml | awk -F ': ' '{print $2}')
+          echo "stableVersion=${stableVersion}" >> ${{ runner.temp }}/env.properties
+          echo "stableVersion=${stableVersion}" > ${{ runner.temp }}/env.sh
+          chmod +x ${{ runner.temp }}/env.sh
+          CURRENT_TAG=$(echo "$stableVersion" | cut -d'=' -f2)
           
       - name: Create Release
         id: create_release
@@ -80,8 +80,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
         with:
-          tag_name: $stableVersion
-          release_name: Release $stableVersion
+          tag_name: ${CURRENT_TAG}
+          release_name: Release ${CURRENT_TAG}
           body: |
             Changes in this Release
            
@@ -90,5 +90,5 @@ jobs:
 
       - name: Display Release and Tag Details
         run: |
-          echo -e "\e[1;93mCreated release with tag: $stableVersion
-          echo -e "\e[1;93mRelease ID:$stableVersion created successfully"
+          echo -e "\e[1;93mCreated release with tag: ${CURRENT_TAG}
+          echo -e "\e[1;93mRelease ID:${CURRENT_TAG} created successfully"

@@ -1,0 +1,26 @@
+name: sample
+
+on:
+ pull_request:
+   types:
+     - opened
+     - synchronize 
+     - merged
+     - closed
+   
+   branches:
+      - main
+jobs:
+  first_stage_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set variable value
+        run: echo "Hello, World!" > ${{ github.workspace }}/myVariable.txt
+  second_stage_job:
+    needs: first_stage_job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve variable value
+        run: |
+          myVariableValue=$(cat "${{ github.workspace }}/myVariable.txt")
+          echo "The variable value is $myVariableValue"
