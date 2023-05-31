@@ -79,8 +79,8 @@ jobs:
           tag_name: ${{ needs.PreCheckTag.outputs.version }}
           release_name: Release${{ needs.PreCheckTag.outputs.version }}
           body: |
-            PR Details:
-            ${{ needs.PreCheckTag.outputs.prInfo }}
+            Click on this link ${{ needs.PreCheckTag.outputs.prInfo }} to check the relevant set of commits from the pull request.
+           
           draft: false
           prerelease: false    
         
